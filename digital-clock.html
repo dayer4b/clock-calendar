@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=VT323|Nova+Mono' rel='stylesheet' type='text/css'>
+<link href='weather-icons/css/weather-icons.css' rel='stylesheet' type='text/css' />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="moment.min.js"></script>
+<script>
+var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+var daysOfWeek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function startTime() {
+    var now=new Date();
+    var year=now.getFullYear();
+    var month=months[now.getMonth()];
+    var date=now.getDate();
+    var day=daysOfWeek[now.getDay()];
+    var h=now.getHours();
+    var m=now.getMinutes();
+    var s=now.getSeconds();
+    var ampm = h >= 12 ? 'pm' : 'am';
+    h = h % 12;
+    h = h ? h : 12; // the hour '0' should be '12' 
+    m = checkTime(m);
+    s = checkTime(s);
+    # var datestring = "<div id='date'>" + day + ", " + month + " " + date + ", " + year + "</div>";
+    # var timestring = "<div id='time'>" + h + ":" + m + ":" + s + " " + ampm + "&nbsp;</div>";
+
+    var datestring = "<div id='date'>" + moment().format('dddd, MMMM D, YYYY') + "</div>";
+    var timestring = "<div id='time'>" + moment().format('h:mm:ss a') + "</div>";
+
+    $("#calendar .month-name").text(month);
+    document.getElementById('txt').innerHTML = datestring + timestring;
+
+
+	// --- Analog clock ---//
+
+	var canvas = document.getElementById("clock");
+	var context = canvas.getContext("2d");
+	
+	// You can change this to make the clock as big or small as you want.
+	// Just remember to adjust the canvas size if necessary.
+	var clockRadius = 200;
+
+	// Make sure the clock is centered in the canvas
+	var clockX = canvas.width / 2;
+	var clockY = canvas.height / 2;
+
+	// Make sure TAU is defined (it's not by default)
+	Math.TAU = 2 * Math.PI;
+	
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	
+	// Draw background
+
+	for (var i = 0; i < 12; i++)
+	{
+		var innerDist		= (i % 3) ? 0.75 : 0.7;
+		var outerDist		= (i % 3) ? 0.95 : 1.0;
+		context.lineWidth 	= (i % 3) ? 4 : 10;
+		context.strokeStyle = '#999999';
+		
+		var armRadians = (Math.TAU * (i/12)) - (Math.TAU/4);
+		var x1 = clockX + Math.cos(armRadians) * (innerDist * clockRadius);
+		var y1 = clockY + Math.sin(armRadians) * (innerDist * clockRadius);
+		var x2 = clockX + Math.cos(armRadians) * (outerDist * clockRadius);
+		var y2 = clockY + Math.sin(armRadians) * (outerDist * clockRadius);
+		
+		context.beginPath();
+		context.moveTo(x1, y1); // Start at the center
+		context.lineTo(x2, y2); // Draw a line outwards
+		context.stroke();
+	}
+	
+	// Draw arms
+
+	function drawArm(progress, armThickness, armLength, armColor)
+	{
+		var armRadians = (Math.TAU * progress) - (Math.TAU/4);
+		var targetX = clockX + Math.cos(armRadians) * (armLength * clockRadius);
+		var targetY = clockY + Math.sin(armRadians) * (armLength * clockRadius);
+
+		context.lineWidth = armThickness;
+		context.strokeStyle = armColor;
+
+		context.beginPath();
+		context.moveTo(clockX, clockY); // Start at the center
+		context.lineTo(targetX, targetY); // Draw a line outwards
+		context.stroke();
+	}
+	
+	var hProgress = (h/12) + (1/12)*(m/60) + (1/12)*(1/60)*(s/60);
+	var mProgress =                 (m/60) +        (1/60)*(s/60);
+	var sProgress =                                        (s/60);
+	
+	drawArm( hProgress, 10, 1/2, '#000000'); // Hour
+	drawArm( hProgress, 10, -5/clockRadius, '#000000'); // Hour
+
+	drawArm( mProgress,  4, 3/4, '#000000'); // Minute
+	drawArm( mProgress,  4, -2/clockRadius, '#000000'); // Minute
+
+	drawArm( sProgress,  2,   1, '#FF0000'); // Second
+	drawArm( sProgress,  2, -10/clockRadius, '#FF0000'); // Second
+
+
+    var t = setTimeout(function(){startTime()},500);
+}
+
+function checkTime(i) {
+    if (i<10) {i = "0" + i};  // add zero in front of numbers < 10
+    return i;
+}
+
+
+var weatherIconMap = {
+  "partly cloudy": "wi-day-sunny-overcast",
+  "tornado": "wi-tornado",
+  "tropical storm": "wi-day-storm-showers",
+  "hurricane": "wi-hurricane",
+  "severe thunderstorms": "wi-day-storm-showers",
+  "thunderstorms": "wi-day-thunderstorm",
+  "mixed rain and snow": "wi-day-rain-mix",
+  "mixed rain and sleet": "wi-day-sleet-storm",
+  "mixed snow and sleet": "wi-day-sleet-storm",
+  "freezing drizzle": "wi-sleet",
+  "light rain": "wi-rain",
+  "drizzle": "wi-sprinkles",
+  "freezing rain": "wi-sleet",
+  "showers": "wi-showers",
+  "snow flurries": "",
+  "light snow showers": "",
+  "blowing snow": "",
+  "snow": "wi-snow",
+  "hail": "wi-hail",
+  "sleet": "wi-sleet",
+  "dust": "wi-dust",
+  "foggy": "wi-fog",
+  "haze": "wi-day-haze",
+  "smoky": "wi-smoke",
+  "blustery": "",
+  "windy": "wi-windy",
+  "cold": "",
+  "cloudy": "wi-cloudy",
+  "mostly cloudy (night)": "wi-night-cloudy",
+  "mostly cloudy (day)": "wi-day-cloudy",
+  "mostly cloudy": "wi-day-cloudy",
+  "partly cloudy (night)": "wi-night-cloudy",
+  "partly cloudy (day)": "wi-day-sunny-overcast",
+  "clear (night)": "",
+  "sunny": "wi-day-sunny",
+  "fair (night)": "wi-night-clear",
+  "fair (day)": "wi-day-sunny",
+  "fair": "wi-day-sunny",
+  "mixed rain and hail": "",
+  "hot": "wi-hot",
+  "isolated thunderstorms": "wi-thunderstorm",
+  "scattered thunderstorms": "wi-day-thunderstorm",
+  "scattered showers": "",
+  "scattered snow showers": "",
+  "heavy snow": "wi-snow-wind",
+  "partly cloudy": "wi-day-sunny-overcast",
+  "thundershowers": "",
+  "snow showers": "",
+  "not available": "wi-alien"
+};
+
+// http://forecast.weather.gov/MapClick.php?lat=41.9215420&lon=-87.7024820&FcstType=json
+// weather from weather.gov for the 60647 zip code
+// https://github.com/erikflowers/weather-icons <<<<----- use this font for weather icons
+function updateweather(){
+
+  var weatherURL = 'http://query.yahooapis.com/v1/public/yql?q=select%20item.condition%20from%20weather.forecast%20where%20woeid%20in%20%28select%20woeid%20from%20geo.places%281%29%20where%20text%3D%22Chicago%2C%20IL%22%29&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys';
+
+  $.get(weatherURL, function(data){
+    var currentTemp = data.query.results.channel.item.condition.temp;
+    var currentText = data.query.results.channel.item.condition.text.toLowerCase();
+
+    var tempHTML = "<div id='temperature'>" + currentTemp + "<i class='wi wi-fahrenheit'></i></div>";
+    var symbolHTML = "<div id='symbol'><i class='wi " + weatherIconMap[currentText] + "'></i><p>" + currentText + "</p></div>";
+
+    $("#weather").html(tempHTML + symbolHTML);
+
+  });
+
+}
+
+function color(){
+  // color = 'rgb(' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ',' + Math.floor(Math.random() * 255) + ')';
+//  return '#'+Math.floor(Math.random()*16777215).toString(16);
+
+  var textColor       = Math.random() * 0xFFFFFF;
+  var backgroundColor = 0xFFFFFF ^ textColor; // Set to complement of textColor.
+  return ["#" + textColor.toString(16).slice(-6), "#" + backgroundColor.toString(16)];
+}
+
+
+
+function changeColors(){
+//  var color1 = color();
+//  var color2 = color();
+  var colors = color();
+  var color1 = colors[0];
+  var color2 = colors[1];
+  $("body").css('color',color1).css('background-color', color2);
+  $("#weather").css('background-color', color1).css('color',color2);
+}
+
+updateweather();
+setInterval(function(){ updateweather() }, 5000);
+// setInterval(function(){ changeColors() }, 1 * 60 * 1000);
+
+$(document).ready(function(){
+	$("#calendar tbody td").hover(function(){
+		$("#calendar td").removeClass("hover");
+		$("#calendar col").removeClass("hover");
+		var thisday = this.className;
+		$("." + thisday).addClass("hover");
+	});
+});
+
+</script>
+<style type="text/css">
+body { 
+  font-family: Courier, sans-serif; 
+  // font-family: 'VT323', sans-serif;
+  // font-family: 'Nova Mono', sans-serif;
+  
+  //font-size: 1.4em;
+  color: #333;
+
+  transition: background-color 2.0s, color 2.0s;
+
+}
+#txt { 
+  float: left;
+}
+#date { 
+  font-size: 4em;
+}
+#time { 
+  font-weight: bold;
+  font-size: 9em;
+}
+#clock {
+  padding: 1em;
+  float: right;
+  background: radial-gradient(#fff 66%, #333 68%);
+  border-radius: 1em;
+}
+#weather {
+  margin-top: 0.2em;
+  float: left; clear: left;
+  padding: 4em;
+  background: #333;
+  color: #fff;
+  border-radius: 1em;
+  
+  transition: background-color 2.0s, color 2.0s;
+}
+#weather #temperature { font-size: 8em; margin-bottom: 0.5em; margin-right: 1em; float: left; }
+#weather #symbol { font-size: 15em; float: right; }
+#weather #symbol p { font-size: 0.1em; }
+
+#calendar table { border-collapse: collapse; }
+#calendar table td { box-model: border; }
+#calendar col.sunday,
+#calendar col.saturday { background: #fafafa; }
+#calendar col.hover { background: #f6f6f6; }
+#calendar tr:hover td { background: #f6f6f6; }
+#calendar tr:hover td:hover { background: #aaa; color: #fff; }
+
+
+</style>
+
+</head>
+
+<body onload="startTime()">
+
+<div id="txt"></div>
+
+<canvas id='clock' width='400px' height='400px'></canvas>
+
+<div id="weather">weather</div>
+
+<div id="calendar">
+<table>
+	<colgroup>
+		<col class='sunday' />
+		<col class='monday' />
+		<col class='tuesday' />
+		<col class='wednesday' />
+		<col class='thursday' />
+		<col class='friday' />
+		<col class='saturday' />
+	</colgroup>
+	<thead>
+		<tr>
+			<td colspan="7" class='month-name'>MONTHNAME</td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr>
+			<td class='sunday'>Sun</td>
+			<td class='monday'>Mon</td>
+			<td class='tuesday'>Tue</td>
+			<td class='wednesday'>Wed</td>
+			<td class='thursday'>Thu</td>
+			<td class='friday'>Fri</td>
+			<td class='saturday'>Sat</td>
+		</tr>
+		<tr>
+			<td class='sunday'>0</td>
+			<td class='monday'>1</td>
+			<td class='tuesday'>2</td>
+			<td class='wednesday'>3</td>
+			<td class='thursday'>4</td>
+			<td class='friday'>5</td>
+			<td class='saturday'>6</td>
+		</tr>
+		<tr>
+			<td class='sunday'>7</td>
+			<td class='monday'>8</td>
+			<td class='tuesday'>9</td>
+			<td class='wednesday'>10</td>
+			<td class='thursday'>11</td>
+			<td class='friday'>12</td>
+			<td class='saturday'>13</td>
+		</tr>
+		<tr>
+			<td class='sunday'>14</td>
+			<td class='monday'>15</td>
+			<td class='tuesday'>16</td>
+			<td class='wednesday'>17</td>
+			<td class='thursday'>18</td>
+			<td class='friday'>19</td>
+			<td class='saturday'>20</td>
+		</tr>
+		<tr>
+			<td class='sunday'>21</td>
+			<td class='monday'>22</td>
+			<td class='tuesday'>23</td>
+			<td class='wednesday'>24</td>
+			<td class='thursday'>25</td>
+			<td class='friday'>26</td>
+			<td class='saturday'>27</td>
+		</tr>
+		<tr>
+			<td class='sunday'>28</td>
+			<td class='monday'>29</td>
+			<td class='tuesday'>30</td>
+			<td class='wednesday'>31</td>
+			<td class='thursday'>32</td>
+			<td class='friday'>33</td>
+			<td class='saturday'>34</td>
+		</tr>
+	</tbody>
+</table>
+</div>
+
+</body>
+</html>
+
