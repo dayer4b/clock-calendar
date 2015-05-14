@@ -7,8 +7,16 @@
 <script src="moment.min.js"></script>
 <script>
 function rewriteWeek(weekNumber, thisMoment){
-	$("tr.week"+weekNumber+" td").each(function(index, el){
-		el.text(thisMoment.format('D'));
+	$("tr#"+weekNumber+" td").each(function(index, el){
+		if(moment().month()===thisMoment.month()){
+			if(thisMoment.dayOfYear()===moment().dayOfYear()){
+				$(el).html("<span class='today'>"+thisMoment.format('D')+"</span>");
+			}else{
+				$(el).text(thisMoment.format('D'));
+			}
+		}else{
+			$(el).html("<span class='other-month'>"+thisMoment.format('D')+"</span>");
+		}
 		thisMoment.add(1, 'days').calendar();
 	});
 	return thisMoment;
@@ -23,11 +31,16 @@ function startTime() {
     var datestring = "<div id='date'>" + moment().format('dddd, MMMM D, YYYY') + "</div>";
     var timestring = "<div id='time'>" + moment().format('h:mm:ss a') + "</div>";
 
-    var thisMonth = moment().startOf('month');
+    var thisMonth = moment().startOf('month').startOf('week');
 
     $("#calendar .month-name").text(moment().format('MMMM'));
 // NOT FUNCTIONAL
-//    rewriteWeek(1,thisMonth);    
+    rewriteWeek('week1', thisMonth);    
+    rewriteWeek('week2', thisMonth);    
+    rewriteWeek('week3', thisMonth);    
+    rewriteWeek('week4', thisMonth);    
+    rewriteWeek('week5', thisMonth);    
+    rewriteWeek('week6', thisMonth);    
 
 
     document.getElementById('txt').innerHTML = datestring + timestring;
@@ -268,7 +281,8 @@ body {
 #calendar col.hover { background: #f6f6f6; }
 #calendar tr:hover td { background: #f6f6f6; }
 #calendar tr:hover td:hover { background: #aaa; color: #fff; }
-
+#calendar td .other-month { color: #ddd; }
+#calendar td .today { color: #e33; }
 
 </style>
 
@@ -352,6 +366,15 @@ body {
 			<td class='thursday'>32</td>
 			<td class='friday'>33</td>
 			<td class='saturday'>34</td>
+		</tr>
+		<tr id='week6'>
+			<td class='sunday'>35</td>
+			<td class='monday'>36</td>
+			<td class='tuesday'>37</td>
+			<td class='wednesday'>38</td>
+			<td class='thursday'>39</td>
+			<td class='friday'>40</td>
+			<td class='saturday'>41</td>
 		</tr>
 	</tbody>
 </table>
