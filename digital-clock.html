@@ -22,6 +22,21 @@ function rewriteWeek(weekNumber, thisMoment){
 	return thisMoment;
 }
 
+function rewriteMonth(){
+
+    var thisMonth = moment().startOf('month').startOf('week');
+
+    $("#calendar .month-name").text(moment().format('MMMM'));
+
+    rewriteWeek('week1', thisMonth);    
+    rewriteWeek('week2', thisMonth);    
+    rewriteWeek('week3', thisMonth);    
+    rewriteWeek('week4', thisMonth);    
+    rewriteWeek('week5', thisMonth);    
+    rewriteWeek('week6', thisMonth);    
+
+}
+
 function startTime() {
     var now=new Date();
     var h=now.getHours();
@@ -30,18 +45,6 @@ function startTime() {
 
     var datestring = "<div id='date'>" + moment().format('dddd, MMMM D, YYYY') + "</div>";
     var timestring = "<div id='time'>" + moment().format('h:mm:ss a') + "</div>";
-
-    var thisMonth = moment().startOf('month').startOf('week');
-
-    $("#calendar .month-name").text(moment().format('MMMM'));
-// NOT FUNCTIONAL
-    rewriteWeek('week1', thisMonth);    
-    rewriteWeek('week2', thisMonth);    
-    rewriteWeek('week3', thisMonth);    
-    rewriteWeek('week4', thisMonth);    
-    rewriteWeek('week5', thisMonth);    
-    rewriteWeek('week6', thisMonth);    
-
 
     document.getElementById('txt').innerHTML = datestring + timestring;
 
@@ -172,7 +175,8 @@ var weatherIconMap = {
   "scattered snow showers": "",
   "heavy snow": "wi-snow-wind",
   "partly cloudy": "wi-day-sunny-overcast",
-  "thundershowers": "",
+  "thundershowers": "wi-thunderstorm",
+  "thunder": "wi-thunderstorm",
   "snow showers": "",
   "not available": "wi-alien"
 };
@@ -218,9 +222,7 @@ function changeColors(){
   $("#weather").css('background-color', color1).css('color',color2);
 }
 
-updateweather();
-setInterval(function(){ updateweather() }, 5000);
-// setInterval(function(){ changeColors() }, 1 * 60 * 1000);
+
 
 $(document).ready(function(){
 	$("#calendar tbody td").hover(function(){
@@ -229,6 +231,14 @@ $(document).ready(function(){
 		var thisday = this.className;
 		$("." + thisday).addClass("hover");
 	});
+
+	updateweather();
+	setInterval(function(){ updateweather() }, 5000);
+	// setInterval(function(){ changeColors() }, 1 * 60 * 1000);
+
+	rewriteMonth();
+	setInterval(function(){ rewriteMonth(); }, 5 * 60 * 1000);
+
 });
 
 </script>
